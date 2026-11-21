@@ -1,0 +1,71 @@
+aibom_schema_version: "0.2"
+manifest_type: "agile-v-agent-run-bom"
+identity:
+  task_id: "AAV-20261121-RUST-SKILLS"
+  run_id: "RUN-0001"
+  created_at: "2026-11-21T00:00:00Z"
+  created_by: "build-agent (Claude Code)"
+  repository: "Agile-V/agile_v_skills (staging only; deliverable leaves repo)"
+risk:
+  agile_v_risk_level: "L1"
+  ai_influence_level: "substantial"
+  regulated_context: false
+  human_approval_required: true   # Gate 2 before release/move
+models:
+  - provider: "Anthropic"
+    model_id: "claude-opus-5-5"
+    role: "requirement-architect, build-agent (orchestrator + per-skill build sub-agents)"
+  - provider: "Anthropic"
+    model_id: "claude-opus-5-5"
+    role: "logic-gatekeeper (separate agent context)"
+agent_runtime:
+  agent_name: "Claude Code"
+  agent_framework: "Claude Code CLI with agile-v-skills plugin 3.10.0"
+  execution_environment: "local"
+  confidence: "declared"
+agile_v_skills: ["agile-v-skills:build-agent", "agile-v-skills:requirement-architect", "agile-v-skills:logic-gatekeeper"]
+tools: ["Bash", "Read", "Write", "Edit", "Agent", "curl (crates.io API)", "cargo 1.96.0", "rustc 1.96.0"]
+agent_interoperability:
+  untrusted_context_enforced: null
+  tool_records: []
+  delegation_records: []
+context:
+  declared:
+    instruction_bundles: ["build-agent/SKILL.md", "domains/build-agent-embedded/SKILL.md (structure reference)", "domains/build-agent-python/SKILL.md (structure reference)"]
+    policies: []
+    sources:
+      - ".agile-v/baselines/BASELINE-0001/REQUIREMENTS.md (sha256 in SHA256SUMS)"
+      - "crates.io API 2026-11-21 -> CRATES_IO_VERSIONS_2026-11-21.txt"
+    datasets: []
+  observed:
+    sources:
+      - "crates.io API (versions); docs.rs; probe-rs source downloaded and read in /tmp (embedded build agent)"
+      - "stm32-metapac memory map (STM32H563ZI)"
+    tool_calls_evidence: "Build sub-agent reports, 2026-11-21: compile checks rustc/cargo 1.96.0 (+1.88.0 for embedded MSRV); scratch workspaces /tmp/agilev-rust-check, /tmp/agilev-embedded-check; flip-link 0.1.12 and wasm-pack 0.14.0 used"
+    policy_decisions_evidence: ".agile-v/gates/GATE_1_C1.md; .agile-v/DECISION_LOG.md"
+    confidence: "declared"
+hashes:
+  - artifact: ".agile-v/staging/build-agent-rust/SKILL.md"
+    sha256: "sha256:26dcc510d709e5efc6ad3f74e6c618bc582be13e7a6600c87da0689572c4b1a6"   # ART-0001.3
+  - artifact: ".agile-v/staging/build-agent-embedded-rust/SKILL.md"
+    sha256: "sha256:b78eca250901c50ba90bb6100190edf2c493a021c5a4bb1977179ba85670469c"   # ART-0002.4
+artifact_influence:
+  - artifact: ".agile-v/staging/build-agent-rust/SKILL.md"
+    art_id: "ART-0001"
+    influence: "generated"
+  - artifact: ".agile-v/staging/build-agent-embedded-rust/SKILL.md"
+    art_id: "ART-0002"
+    influence: "generated"
+security_and_privacy:
+  secrets_redacted: true
+  hidden_chain_of_thought_excluded: true
+  pii_redacted: true
+  prompt_capture_policy: "metadata_only"
+summary:
+  unresolved_items:
+    - "CR-0001 approved and applied (ART-0002.2; BASELINE-0002)"
+    - "Tools not run by build agents: cargo-deny, cargo-llvm-cov, cargo-cyclonedx, Miri, cargo-fuzz, Kani, probe-rs on-target/HIL"
+    - "Independent verification complete: PASS for ART-0001.3 and ART-0002.4 (I2), see .agile-v/VERIFICATION_SUMMARY.md"
+    - "CR-0002 approved (BASELINE-0003)"
+  verifier_notes: "red-team-verifier agent contexts (I2), 3 rounds; reports in .agile-v/verification/"
+  human_approval: "approved"   # Gate 2, .agile-v/gates/GATE_2_C1.md
